@@ -1,17 +1,21 @@
 """FastAPI application. Run from backend/:  uvicorn app.main:app --port 8000"""
 from __future__ import annotations
 
+import json
 import logging
 import re
 import time
 import uuid
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from ask_sdk_core.skill_builder import SkillBuilder
+from app.alexa_handler import AlexaAgentIntentHandler
 
 from app import __version__
 from app.agent import Agent
@@ -33,7 +37,7 @@ _REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
-    settings.validate()  # fail fast with a clear message
+    settings.validate()
     setup_logging(settings.log_level)
     init_db()
     model = build_model_client(settings)
@@ -92,6 +96,21 @@ def create_app() -> FastAPI:
         finally:
             request_id_var.reset(token)
 
+    # --- ALEXA WEBHOOK ENDPOINT ---
+    @app.post("/api/alexa")
+    async def alexa_endpoint(request: Request):
+        agent = request.app.state.agent
+        
+        sb = SkillBuilder()
+        sb.add_request_handler(AlexaAgentIntentHandler(agent))
+        skill = sb.create()
+
+        payload = await request.body()
+        data = json.loads(payload.decode("utf-8"))
+        
+        response_payload = skill.invoke(data, None)
+        return Response(content=json.dumps(response_payload), media_type="application/json")
+
     @app.exception_handler(ApiError)
     async def api_error_handler(request: Request, exc: ApiError):
         return _error_response(exc.status_code, exc.code, exc.message, request)
@@ -109,7 +128,7 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(Exception)
     async def unhandled_handler(request: Request, exc: Exception):
-        logger.exception("Unhandled error on %s %s", request.method, request.url.path)  # trace stays in server logs
+        logger.exception("Unhandled error on %s %s", request.method, request.url.path)
         return _error_response(500, "internal_error", "An unexpected error occurred.", request)
 
     app.include_router(health.router)
