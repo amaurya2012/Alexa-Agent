@@ -1,0 +1,52 @@
+# ==========================================
+# Virtual Environment & Python Dependencies
+# ==========================================
+.venv/
+venv/
+env/
+ENV/
+*.py[cod]
+*$py.class
+__pycache__/
+
+# ==========================================
+# Secrets & Environment Variables
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ==========================================
+# Local Database & Dynamic Files
+# ==========================================
+data/
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# ==========================================
+# Testing & Coverage
+# ==========================================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ==========================================
+# IDE & System Files
+# ==========================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# ==========================================
+# Tunnel & Temporary Executables
+# ==========================================
+*.exe
+cloudflared
+ngrok
