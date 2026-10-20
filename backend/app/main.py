@@ -96,7 +96,12 @@ def create_app() -> FastAPI:
         finally:
             request_id_var.reset(token)
 
-    # --- ALEXA WEBHOOK ENDPOINT ---
+    # --- 1. GET ROUTE (Browser / Tunnel Check ke liye) ---
+    @app.get("/api/alexa")
+    async def alexa_health_check():
+        return {"status": "ok", "message": "Alexa webhook endpoint is live and working!"}
+
+    # --- 2. POST ROUTE (Alexa ke Requests ke liye) ---
     @app.post("/api/alexa")
     async def alexa_endpoint(request: Request):
         agent = request.app.state.agent
