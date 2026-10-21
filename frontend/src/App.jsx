@@ -241,6 +241,7 @@ function App() {
           <div className="date-pill">✦ &nbsp; Your smart space</div>
         </section>
 
+        {/* OVERVIEW TAB */}
         {activeTab === "overview" && (
           <>
             <section className="hero-card">
@@ -319,6 +320,158 @@ function App() {
           </>
         )}
 
+        {/* MUSIC TAB */}
+        {activeTab === "music" && (
+          <section className="feature-layout">
+            <div className="feature-card music-feature">
+              <span className="hero-label">♫ &nbsp; MUSIC STUDIO</span>
+              <div className="music-visual">
+                <span>♫</span>
+                <span>♪</span>
+                <span>♬</span>
+                <span>♪</span>
+                <span>♫</span>
+              </div>
+              <h2>Find your rhythm.</h2>
+              <p>Every moment deserves its own soundtrack.</p>
+              <button
+                className="primary-button"
+                onClick={() => setPlaying(!playing)}
+              >
+                {playing ? "Ⅱ  Pause playback" : "▶  Play demo track"}
+              </button>
+              <p className="demo-note">
+                {playing
+                  ? "Playing: Ambient Focus Beats (48kHz Stereo)"
+                  : "Click play to start audio demo session."}
+              </p>
+            </div>
+            <div className="content-card playlist-card">
+              <h2>Made for your mood</h2>
+              <p>Pick a vibe to brighten your day.</p>
+              {[
+                ["☀", "Morning sunshine", "Fresh & uplifting"],
+                ["☁", "Slow afternoons", "Calm & cozy"],
+                ["✦", "Focus mode", "Clear your mind"],
+                ["♡", "Feel-good favourites", "Songs you love"],
+              ].map((item) => (
+                <button
+                  className="playlist-row"
+                  key={item[1]}
+                  onClick={() => setPlaying(true)}
+                >
+                  <span className="playlist-icon">{item[0]}</span>
+                  <span className="playlist-info">
+                    <strong>{item[1]}</strong>
+                    <small>{item[2]}</small>
+                  </span>
+                  <span>→</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* WEATHER TAB */}
+        {activeTab === "weather" && (
+          <>
+            <section className="weather-hero">
+              <div>
+                <span className="hero-label">☀ &nbsp; WEATHER SNAPSHOT</span>
+                <p className="weather-location">Delhi NCR, IN</p>
+                <h2>28°C, Clear Skies</h2>
+                <p>Perfect conditions for planning your day and outdoor tasks.</p>
+                <div className="weather-placeholder">
+                  <span>☀</span>
+                  <div>
+                    <strong>Sunny &amp; Dry</strong>
+                    <small>High of 31°C • Low of 19°C</small>
+                  </div>
+                </div>
+              </div>
+              <div className="sun-art">
+                <span>☀</span>
+                <div className="cloud-art">☁</div>
+              </div>
+            </section>
+
+            <section className="quick-grid weather-stats">
+              <div className="content-card stat-card">
+                <span className="stat-icon">☁</span>
+                <p>Humidity</p>
+                <h3>42%</h3>
+              </div>
+              <div className="content-card stat-card">
+                <span className="stat-icon">↗</span>
+                <p>Wind Speed</p>
+                <h3>14 km/h</h3>
+              </div>
+              <div className="content-card stat-card">
+                <span className="stat-icon">☀</span>
+                <p>UV Index</p>
+                <h3>Moderate (5)</h3>
+              </div>
+            </section>
+          </>
+        )}
+
+        {/* SMART HOME TAB */}
+        {activeTab === "home" && (
+          <>
+            <section className="home-banner">
+              <span className="hero-label">⌂ &nbsp; YOUR CONNECTED SPACE</span>
+              <h2>A home that feels like you.</h2>
+              <p>Manage your comfort with simple controls.</p>
+              <span className="big-home-art">⌂</span>
+            </section>
+            <section className="bottom-grid">
+              <div className="content-card device-panel">
+                <div className="device-row">
+                  <div className="device-icon">☼</div>
+                  <div className="device-info">
+                    <strong>Living room lights</strong>
+                    <span>{lights ? "Currently on" : "Currently off"}</span>
+                  </div>
+                  <button
+                    className={`toggle ${lights ? "toggle-on" : ""}`}
+                    onClick={() => setLights(!lights)}
+                    aria-label="Toggle lights"
+                  >
+                    <span></span>
+                  </button>
+                </div>
+                <div className="device-row">
+                  <div className="device-icon temp-icon">♨</div>
+                  <div className="device-info">
+                    <strong>Thermostat</strong>
+                    <span>Adjust room temperature</span>
+                  </div>
+                  <strong className="temperature">{temperature}°C</strong>
+                </div>
+                <input
+                  aria-label="Room temperature"
+                  type="range"
+                  min="16"
+                  max="30"
+                  value={temperature}
+                  onChange={(e) => setTemperature(Number(e.target.value))}
+                />
+                <p className="range-label">16°C <span>30°C</span></p>
+              </div>
+
+              <div className="content-card comfort-card">
+                <div className="comfort-orb">✧</div>
+                <h2>Comfort mode</h2>
+                <p>Make your space feel just right.</p>
+                <span className="connected-label">
+                  <span className="green-dot"></span> Demo controls active
+                </span>
+              </div>
+            </section>
+          </>
+        )}
+
+        {/* VOICE ASSISTANT TAB */}
         {activeTab === "voice" && (
           <section className="voice-layout">
             <div className="voice-card">
@@ -429,41 +582,6 @@ function App() {
                   {loading ? "..." : "Send →"}
                 </button>
               </form>
-            </div>
-          </section>
-        )}
-
-        {activeTab === "home" && (
-          <section className="bottom-grid">
-            <div className="content-card device-panel">
-              <div className="device-row">
-                <div className="device-icon">☼</div>
-                <div className="device-info">
-                  <strong>Living room lights</strong>
-                  <span>{lights ? "Currently on" : "Currently off"}</span>
-                </div>
-                <button
-                  className={`toggle ${lights ? "toggle-on" : ""}`}
-                  onClick={() => setLights(!lights)}
-                >
-                  <span></span>
-                </button>
-              </div>
-              <div className="device-row">
-                <div className="device-icon temp-icon">♨</div>
-                <div className="device-info">
-                  <strong>Thermostat</strong>
-                  <span>Adjust room temperature</span>
-                </div>
-                <strong className="temperature">{temperature}°C</strong>
-              </div>
-              <input
-                type="range"
-                min="16"
-                max="30"
-                value={temperature}
-                onChange={(e) => setTemperature(Number(e.target.value))}
-              />
             </div>
           </section>
         )}

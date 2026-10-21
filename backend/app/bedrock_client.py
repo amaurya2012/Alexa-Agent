@@ -198,6 +198,12 @@ def plan_tool_calls(text: str, now: datetime) -> tuple[list[tuple[str, dict[str,
         elif m := re.match(r"^(?:please\s+)?(?:do we have|have we got|how many|how much|check(?:\s+the)?(?:\s+stock|\s+inventory)?(?:\s+of|\s+for)?|stock of|inventory of)\s+(?:any\s+)?(?P<i>.+)$", clause, re.I):
             item = re.sub(r"\s+(?:left|in stock|do we have(?: left)?)$", "", m.group("i").strip(), flags=re.I)
             calls.append(("check_inventory", {"item_name": item}))
+        # Weather ke liye rule add karein
+        elif re.match(
+            r"^(?:please\s+)?(?:what's|what is|how's|how is|get|check|tell me)?(?:\s+the)?\s*weather(?:\s+(?:like|in|at|today))?.*$",
+            low,
+        ):
+          calls.append(("get_weather", {"city": "Delhi NCR"}))
         else:
             notes.append(f"I didn't understand '{clause}'.")
     return calls, (" ".join(notes) or None)
@@ -206,7 +212,7 @@ def plan_tool_calls(text: str, now: datetime) -> tuple[list[tuple[str, dict[str,
 _HELP = (
     "In demo mode I understand simple requests such as: 'add a task to buy milk', 'list my tasks', "
     "'complete task 1', 'delete task 2', 'remind me to call mom in 2 hours', 'show reminders', "
-    "'do we have eggs', 'show inventory', 'add 6 eggs to inventory', 'remove 2 milk from inventory'."
+    "'do we have eggs', 'show inventory', 'add 6 eggs to inventory', 'remove 2 milk from inventory', 'what is the weather in Delhi?'."
 )
 
 
@@ -295,6 +301,8 @@ class MockBedrockClient:
         if name == "create_reminder":
             r = data.get("reminder", {})
             return f"Reminder #{r.get('id')} stored for {r.get('remind_at')}. Note: {data.get('notice', '')}"
+        if name == "get_weather":
+          return f"The current weather in {data.get('city', 'your area')} is {data.get('temp', '28°C')}, {data.get('condition', 'Clear Skies')} with {data.get('humidity', '42%')} humidity."
         return data.get("message", "Done.")
 
 
