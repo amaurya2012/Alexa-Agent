@@ -101,18 +101,29 @@ def create_app() -> FastAPI:
     async def alexa_health_check():
         return {"status": "ok", "message": "Alexa webhook endpoint is live and working!"}
 
-    # --- 2. POST ROUTE (Alexa ke Requests ke liye) ---
+    # --- 2. POST ROUTE (Safe Payload Handling ke sath) ---
     @app.post("/api/alexa")
     async def alexa_endpoint(request: Request):
+        payload = await request.body()
+        if not payload:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "empty_payload", "message": "Request body cannot be empty for Alexa endpoint."}
+            )
+
+        try:
+            data = json.loads(payload.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return JSONResponse(
+                status_code=400,
+                content={"error": "invalid_json", "message": "Malformed JSON payload received."}
+            )
+
         agent = request.app.state.agent
-        
         sb = SkillBuilder()
         sb.add_request_handler(AlexaAgentIntentHandler(agent))
         skill = sb.create()
 
-        payload = await request.body()
-        data = json.loads(payload.decode("utf-8"))
-        
         response_payload = skill.invoke(data, None)
         return Response(content=json.dumps(response_payload), media_type="application/json")
 
